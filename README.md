@@ -1,2 +1,4 @@
 # swa-catalog
-SWA – How to work with Catalog
+Module enabled. Product successfully imported.
+
+![Screen](screen.png)
