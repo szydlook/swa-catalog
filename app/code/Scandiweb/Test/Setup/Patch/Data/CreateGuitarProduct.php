@@ -75,6 +75,11 @@ class CreateGuitarProduct implements DataPatchInterface
     protected array $sourceItems = [];
 
     /**
+     * @var CategoryLinkManagementInterface
+     */
+    protected CategoryLinkManagementInterface $categoryLink;
+
+    /**
      * Migration patch constructor.
      *
      * @param ProductInterfaceFactory $productInterfaceFactory
@@ -83,7 +88,7 @@ class CreateGuitarProduct implements DataPatchInterface
      * @param SourceItemsSaveInterface $sourceItemsSaveInterface
      * @param State $appState
      * @param StoreManagerInterface $storeManager
-		 * @param EavSetup $eavSetup
+     * @param EavSetup $eavSetup
      * @param CategoryLinkManagementInterface $categoryLink
      */
     public function __construct(
@@ -92,22 +97,24 @@ class CreateGuitarProduct implements DataPatchInterface
         State $appState,
         StoreManagerInterface $storeManager,
         EavSetup $eavSetup,
-		SourceItemInterfaceFactory $sourceItemFactory,
+        SourceItemInterfaceFactory $sourceItemFactory,
         SourceItemsSaveInterface $sourceItemsSaveInterface,
-		CategoryLinkManagementInterface $categoryLink
+        CategoryLinkManagementInterface $categoryLink
     ) {
         $this->appState = $appState;
         $this->productInterfaceFactory = $productInterfaceFactory;
         $this->productRepository = $productRepository;
-		$this->eavSetup = $eavSetup;
+        $this->eavSetup = $eavSetup;
         $this->storeManager = $storeManager;
         $this->sourceItemFactory = $sourceItemFactory;
         $this->sourceItemsSaveInterface = $sourceItemsSaveInterface;
-		$this->categoryLink = $categoryLink;
+        $this->categoryLink = $categoryLink;
     }
 
     /**
      * Add new product
+     *
+     * @return void
      */
     public function apply(): void
     {
@@ -120,6 +127,7 @@ class CreateGuitarProduct implements DataPatchInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws ValidationException
+     * @return void
      */
     public function execute(): void
     {
@@ -131,11 +139,11 @@ class CreateGuitarProduct implements DataPatchInterface
 
         $attributeSetId = $this->eavSetup->getAttributeSetId(Product::ENTITY, 'Default');
         $websiteIDs = [$this->storeManager->getStore()->getWebsiteId()];
-			$product->setTypeId(Type::TYPE_SIMPLE)
+        $product->setTypeId(Type::TYPE_SIMPLE)
             ->setWebsiteIds($websiteIDs)
             ->setAttributeSetId($attributeSetId)
             ->setName('Guitar')
-			->setUrlKey('guitar')
+            ->setUrlKey('guitar')
             ->setSku('guitar')
             ->setPrice(999.99)
             ->setVisibility(Visibility::VISIBILITY_BOTH)
@@ -149,10 +157,8 @@ class CreateGuitarProduct implements DataPatchInterface
         $sourceItem->setSku($product->getSku());
         $sourceItem->setStatus(SourceItemInterface::STATUS_IN_STOCK);
         $this->sourceItems[] = $sourceItem;
-
         $this->sourceItemsSaveInterface->execute($this->sourceItems);
-
-				$this->categoryLink->assignProductToCategories($product->getSku(), [2]);
+        $this->categoryLink->assignProductToCategories($product->getSku(), [2]);
     }
 
     /**
